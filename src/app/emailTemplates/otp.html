@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your OTP Code</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f6f6f6;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+      }
+
+      .header {
+        background: #168de1;
+        border: 2px solid #168de1;
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+      }
+
+      .body {
+        padding: 30px 25px;
+        color: #333333;
+        line-height: 1.6;
+        font-size: 15px;
+      }
+
+      .body h2 {
+        margin-top: 0;
+        font-size: 20px;
+        color: #168de1;
+      }
+
+      .button {
+        display: inline-block;
+        margin: 25px 0;
+        padding: 14px 28px;
+        background: #168de1;
+        color: #ffffff !important;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 66, 37, 0.25);
+        transition: background 0.2s ease;
+      }
+
+      .code-box {
+        margin: 25px auto;
+        padding: 15px;
+        background: #e8f4fc;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        letter-spacing: 5px;
+        color: #168de1;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 12px;
+        color: #6c757d;
+        background: #fafafa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Your OTP</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <h2>Hello {{name}},</h2>
+        <p>
+          Use the OTP below to complete your action. Please enter it within the
+          app to verify your identity.
+        </p>
+
+        <!-- OTP Code -->
+        <div class="code-box">{{otp}}</div>
+
+        <p>
+          This OTP will expire in <strong>2 minutes</strong>. If you didn’t
+          request this code, you can safely ignore this email.
+        </p>
+
+        <p style="margin-top: 25px">
+          Cheers,<br />
+          The Global8 Team
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>This is an automated message, please don’t reply.</p>
+        <p>&copy; {{year}} Global8. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
