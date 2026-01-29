@@ -6,3 +6,510 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Auth {
+  id                    String                 @id @default(uuid())
+  email                 String                 @unique
+  password              String
+  role                  UserRole
+  status                UserStatus             @default(PENDING)
+  loginProvider         LoginProvider
+  fcmToken              String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  profile               Profile?
+  otp                   OTP?
+  events                Event[]
+  products              Product[]
+  djevents              DJEvent[]
+  purchasedEvents       PurchasedEvent[]
+  favoriteProducts      FavoriteProduct[]
+  favoriteEvents        FavoriteEvent[]
+  class                 Class[]
+  favoriteClasses       FavoriteClass[]
+  favoriteDJEvents      FavoriteDJEvent[]
+  classEnrollments      ClassEnrollment[]
+  cart                  Cart?
+  orders                Order[]
+  feedbacks             Feedback[]
+  posts                 Post[]
+  comments              Comment[]
+  reactions             Reaction[]
+  communities           Community[]
+  communityMembers      CommunityMember[]
+  communityJoinRequests CommunityJoinRequest[]
+  messages              Message[]
+  notifications         Notification[]
+  staffs                Staff[]
+
+  @@map("auth")
+}
+
+model OTP {
+  id         String   @id @default(uuid())
+  authId     String   @unique
+  auth       Auth     @relation(fields: [authId], references: [id])
+  otp        String
+  expires    DateTime
+  attempts   Int      @default(0)
+  isVerified Boolean  @default(false)
+
+  @@map("otp")
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  authId      String   @unique
+  auth        Auth     @relation(fields: [authId], references: [id])
+  name        String
+  image       String?
+  phone       String?
+  bio         String?
+  socialLinks String[] @default([])
+  interests   String[] @default([])
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("profile")
+}
+
+model Event {
+  id              String           @id @default(uuid())
+  creator         Auth             @relation(fields: [creatorId], references: [id])
+  creatorId       String
+  title           String
+  description     String
+  poster          String?
+  type            EventType
+  location        String?
+  date            DateTime?
+  isFree          Boolean          @default(true)
+  amount          Int?
+  videos          String[]         @default([])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  purchasedEvents PurchasedEvent[]
+  favoriteEvents  FavoriteEvent[]
+  feedbacks       Feedback[]
+
+  @@map("event")
+}
+
+model FavoriteEvent {
+  id      String @id @default(uuid())
+  user    Auth   @relation(fields: [authId], references: [id])
+  authId  String
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+
+  @@map("favorite_event")
+}
+
+model PurchasedEvent {
+  id           String   @id @default(uuid())
+  attendance   Auth     @relation(fields: [attendanceId], references: [id])
+  attendanceId String
+  event        Event    @relation(fields: [eventId], references: [id])
+  eventId      String
+  date         DateTime @default(now())
+
+  @@map("purchased_event")
+}
+
+model Product {
+  id               String            @id @default(uuid())
+  vendor           Auth              @relation(fields: [vendorId], references: [id])
+  vendorId         String
+  image            String?
+  title            String
+  description      String?
+  price            Int
+  quantity         Int               @default(0)
+  colors           Json              @default("[]")
+  sizes            String[]          @default([])
+  material         String?
+  weight           Float?
+  discount         Int               @default(0)
+  shippingCost     Int               @default(0)
+  storeLink        String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  favoriteProducts FavoriteProduct[]
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
+  feedbacks        Feedback[]
+
+  @@map("product")
+}
+
+model FavoriteProduct {
+  id        String  @id @default(uuid())
+  user      Auth    @relation(fields: [authId], references: [id])
+  authId    String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  @@map("favorite_product")
+}
+
+model DJEvent {
+  id               String            @id @default(uuid())
+  dj               Auth              @relation(fields: [djId], references: [id])
+  djId             String
+  image            String?
+  title            String
+  description      String?
+  date             DateTime
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  favoriteDJEvents FavoriteDJEvent[]
+
+  @@map("dj_event")
+}
+
+model FavoriteDJEvent {
+  id        String  @id @default(uuid())
+  user      Auth    @relation(fields: [authId], references: [id])
+  authId    String
+  djEvent   DJEvent @relation(fields: [djEventId], references: [id])
+  djEventId String
+
+  @@map("favorite_dj_event")
+}
+
+model Class {
+  id               String                @id @default(uuid())
+  teacher          Auth                  @relation(fields: [teacherId], references: [id])
+  teacherId        String
+  title            String
+  description      String?
+  poster           String?
+  type             ClassType
+  skillLevel       ClassSkillLevel
+  date             DateTime
+  isFree           Boolean
+  amount           Int?
+  capacity         Int?
+  videos           Json                  @default("[]")
+  isPackage        Boolean               @default(false)
+  packageInterval  ClassPackageInterval?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  favoriteClasses  FavoriteClass[]
+  classEnrollments ClassEnrollment[]
+  feedbacks        Feedback[]
+
+  @@map("class")
+}
+
+model FavoriteClass {
+  id      String @id @default(uuid())
+  user    Auth   @relation(fields: [authId], references: [id])
+  authId  String
+  class   Class  @relation(fields: [classId], references: [id])
+  classId String
+
+  @@map("favorite_class")
+}
+
+model ClassEnrollment {
+  id        String           @id @default(uuid())
+  student   Auth             @relation(fields: [studentId], references: [id])
+  studentId String
+  class     Class            @relation(fields: [classId], references: [id])
+  classId   String
+  status    EnrollmentStatus @default(PENDING)
+  date      DateTime         @default(now())
+
+  @@map("class_enrollment")
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  user      Auth       @relation(fields: [authId], references: [id])
+  authId    String     @unique
+  cartItems CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id        String  @id @default(uuid())
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Int
+  size      String?
+  color     String?
+
+  @@map("cart_item")
+}
+
+model Order {
+  id            String             @id @default(uuid())
+  user          Auth               @relation(fields: [authId], references: [id])
+  authId        String
+  orderId       String             @unique
+  paymentStatus OrderPaymentStatus
+  status        OrderStatus
+  subtotal      Int
+  shippingFee   Int
+  total         Int
+  date          DateTime           @default(now())
+  orderItems    OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Int
+  size      String?
+  color     String?
+
+  @@map("order_item")
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  giver     Auth     @relation(fields: [giverId], references: [id])
+  giverId   String
+  event     Event?   @relation(fields: [eventId], references: [id])
+  eventId   String?
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+  class     Class?   @relation(fields: [classId], references: [id])
+  classId   String?
+  ratings   Float
+  comment   String?
+  date      DateTime @default(now())
+
+  @@map("feedback")
+}
+
+model Post {
+  id          String     @id @default(uuid())
+  creator     Auth       @relation(fields: [creatorId], references: [id])
+  creatorId   String
+  images      String[]   @default([])
+  videos      String[]   @default([])
+  caption     String?
+  shares      Int        @default(0)
+  isExclusive Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  comments    Comment[]
+  reactions   Reaction[]
+
+  @@map("post")
+}
+
+model Comment {
+  id              String     @id @default(uuid())
+  reactor         Auth       @relation(fields: [reactorId], references: [id])
+  reactorId       String
+  post            Post       @relation(fields: [postId], references: [id])
+  postId          String
+  parentComment   Comment?   @relation("CommentReplies", fields: [parentCommentId], references: [id])
+  parentCommentId String?
+  replies         Comment[]  @relation("CommentReplies")
+  date            DateTime   @default(now())
+  reactions       Reaction[]
+
+  @@map("comment")
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  reactor   Auth     @relation(fields: [reactorId], references: [id])
+  reactorId String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  commentId String?
+  date      DateTime @default(now())
+
+  @@map("reaction")
+}
+
+model Community {
+  id                    String                 @id @default(uuid())
+  creator               Auth                   @relation(fields: [creatorId], references: [id])
+  creatorId             String
+  image                 String?
+  title                 String
+  subTitle              String?
+  createdAt             DateTime               @default(now())
+  communityMembers      CommunityMember[]
+  communityJoinRequests CommunityJoinRequest[]
+  chats                 Chat[]
+
+  @@map("community")
+}
+
+model CommunityMember {
+  id           String              @id @default(uuid())
+  community    Community           @relation(fields: [communityId], references: [id])
+  communityId  String
+  member       Auth                @relation(fields: [memberAuthId], references: [id])
+  memberAuthId String
+  role         CommunityMemberRole
+  joinedAt     DateTime            @default(now())
+
+  @@map("community_member")
+}
+
+model CommunityJoinRequest {
+  id           String    @id @default(uuid())
+  community    Community @relation(fields: [communityId], references: [id])
+  communityId  String
+  member       Auth      @relation(fields: [memberAuthId], references: [id])
+  memberAuthId String
+  date         DateTime  @default(now())
+
+  @@map("community_join_request")
+}
+
+model Chat {
+  id          String     @id @default(uuid())
+  lastMessage String?
+  type        ChatType
+  community   Community? @relation(fields: [communityId], references: [id])
+  communityId String?
+  messages    Message[]
+
+  @@map("chat")
+}
+
+model Message {
+  id        String    @id @default(uuid())
+  chat      Chat      @relation(fields: [chatId], references: [id])
+  chatId    String
+  sender    Auth      @relation(fields: [senderId], references: [id])
+  senderId  String
+  text      String?
+  file      String?
+  fileType  FileType?
+  seenBy    String[]  @default([])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("message")
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  receiver   Auth     @relation(fields: [receiverId], references: [id])
+  receiverId String
+  title      String
+  body       String
+  date       DateTime @default(now())
+
+  @@map("notification")
+}
+
+model Legal {
+  id             String   @id @default(uuid())
+  privacyPolicy  String
+  termsCondition String
+  aboutUs        String
+  updatedAt      DateTime @updatedAt
+
+  @@map("legal")
+}
+
+model Staff {
+  id     String @id @default(uuid())
+  auth   Auth   @relation(fields: [authId], references: [id])
+  authId String
+  name   String
+  role   String
+
+  @@map("staff")
+}
+
+enum FileType {
+  IMAGE
+  VIDEO
+  DOC
+}
+
+enum ChatType {
+  COMMUNITY
+  INDIVIDUAL
+}
+
+enum CommunityMemberRole {
+  ADMIN
+  MEMBER
+}
+
+enum OrderPaymentStatus {
+  PAID
+  UNPAID
+}
+
+enum OrderStatus {
+  PROCESSING
+  READY_TO_SHIP
+  DELIVERED
+}
+
+enum EnrollmentStatus {
+  PENDING
+  ENROLLED
+}
+
+enum ClassType {
+  VIRTUAL
+  OFFLINE
+}
+
+enum ClassSkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  PRO
+}
+
+enum ClassPackageInterval {
+  ONE
+  THREE
+  SIX
+  TWELVE
+}
+
+enum EventType {
+  LOCAL
+  VIRTUAL
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum LoginProvider {
+  FACEBOOK
+  GOOGLE
+  EMAIL
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  CREATOR
+  EVENT_ORGANIZER
+  DJ
+  VENDOR
+  TEACHER
+}
