@@ -41,6 +41,9 @@ model Auth {
   messages              Message[]
   notifications         Notification[]
   staffs                Staff[]
+  followers             Follow[]               @relation("FollowerRelation")
+  followings            Follow[]               @relation("FollowingRelation")
+  admin                 Admin?
 
   @@map("auth")
 }
@@ -57,12 +60,26 @@ model OTP {
   @@map("otp")
 }
 
+model Admin {
+  id           String   @id @default(uuid())
+  authId       String   @unique
+  auth         Auth     @relation(fields: [authId], references: [id])
+  name         String
+  phone        String?
+  profileImage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admins")
+}
+
 model Profile {
   id          String   @id @default(uuid())
   authId      String   @unique
   auth        Auth     @relation(fields: [authId], references: [id])
   name        String
   image       String?
+  coverImage  String?
   phone       String?
   bio         String?
   socialLinks String[] @default([])
@@ -72,6 +89,19 @@ model Profile {
   updatedAt   DateTime @updatedAt
 
   @@map("profile")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  follower    Auth     @relation("FollowingRelation", fields: [followerId], references: [id])
+  following   Auth     @relation("FollowerRelation", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([followerId, followingId])
+  @@map("follow")
 }
 
 model Event {

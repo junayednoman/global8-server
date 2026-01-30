@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your OTP Code</title>
+    <title>Verify Your Email</title>
     <style>
       body {
         margin: 0;
@@ -23,8 +23,7 @@
       }
 
       .header {
-        background: #168de1;
-        border: 2px solid #168de1;
+        background: #6121c8;
         color: white;
         text-align: center;
         padding: 30px 20px;
@@ -46,33 +45,19 @@
       .body h2 {
         margin-top: 0;
         font-size: 20px;
-        color: #168de1;
-      }
-
-      .button {
-        display: inline-block;
-        margin: 25px 0;
-        padding: 14px 28px;
-        background: #168de1;
-        color: #ffffff !important;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 15px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 66, 37, 0.25);
-        transition: background 0.2s ease;
+        color: #6121c8;
       }
 
       .code-box {
         margin: 25px auto;
         padding: 15px;
-        background: #e8f4fc;
+        background: #efe9fa;
         border-radius: 8px;
         text-align: center;
         font-size: 22px;
         font-weight: bold;
         letter-spacing: 5px;
-        color: #168de1;
+        color: #6121c8;
       }
 
       .footer {
@@ -88,23 +73,20 @@
     <div class="container">
       <!-- Header -->
       <div class="header">
-        <h1>Your OTP</h1>
+        <h1>Verify Your Email</h1>
       </div>
 
       <!-- Body -->
       <div class="body">
         <h2>Hello {{name}},</h2>
-        <p>
-          Use the OTP below to complete your action. Please enter it within the
-          app to verify your identity.
-        </p>
+        <p>Thanks for signing up! Use the OTP below to verify your account.</p>
 
         <!-- OTP Code -->
         <div class="code-box">{{otp}}</div>
 
         <p>
           This OTP will expire in <strong>2 minutes</strong>. If you didn’t
-          request this code, you can safely ignore this email.
+          request this, just ignore this email.
         </p>
 
         <p style="margin-top: 25px">
