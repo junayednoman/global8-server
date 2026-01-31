@@ -133,7 +133,10 @@ const sendOtp = async (email: string) => {
   const path = "./src/app/emailTemplates/otp.html";
   sendEmail(email, subject, path, {
     otp,
-    name: (auth?.profile?.name as string) || (auth?.admin?.name as string),
+    name:
+      (auth?.profile?.name as string) ||
+      (auth?.admin?.name as string) ||
+      "there",
   });
 };
 

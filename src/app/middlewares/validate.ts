@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodObject } from "zod";
 
-const handleZodValidation =
+const validate =
   (schema: ZodObject, { formData = false }: { formData?: boolean } = {}) =>
   async (req: Request, _res: Response, next: NextFunction) => {
     try {
@@ -18,4 +18,4 @@ const handleZodValidation =
     }
   };
 
-export default handleZodValidation;
+export default validate;

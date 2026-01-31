@@ -285,6 +285,11 @@ const resetPassword = async (payload: TResetPasswordInput) => {
           name: true,
         },
       },
+      admin: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 
@@ -317,9 +322,11 @@ const resetPassword = async (payload: TResetPasswordInput) => {
   });
 
   // send email
-  const subject = "Your wisper Password Has Been Reset 🎉";
+  const subject = "Your Global8 Password Has Been Reset 🎉";
   const path = "./src/app/emailTemplates/passwordResetSuccess.html";
-  const replacements = { name: auth.profile?.name as string };
+  const replacements = {
+    name: auth.profile?.name || auth.admin?.name || "there",
+  };
   sendEmail(payload.email, subject, path, replacements);
 };
 

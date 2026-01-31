@@ -77,7 +77,7 @@ model Profile {
   id          String   @id @default(uuid())
   authId      String   @unique
   auth        Auth     @relation(fields: [authId], references: [id])
-  name        String
+  name        String?
   image       String?
   coverImage  String?
   phone       String?

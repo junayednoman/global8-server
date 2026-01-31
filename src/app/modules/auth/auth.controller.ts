@@ -30,7 +30,7 @@ const login = handleAsyncRequest(async (req: Request, res: Response) => {
 
   if (config.env === "production") cookieOptions.sameSite = "none";
 
-  res.cookie("wisperRefreshToken", refreshToken, cookieOptions);
+  res.cookie("global8RefreshToken", refreshToken, cookieOptions);
 
   sendResponse(res, {
     message: "Logged in successfully!",
@@ -93,7 +93,7 @@ const changeAccountStatus = handleAsyncRequest(
 
 const refreshToken = handleAsyncRequest(
   async (req: TRequest, res: Response) => {
-    const token = req.cookies.wisperRefreshToken;
+    const token = req.cookies.global8RefreshToken;
     const result = await authServices.refreshToken(token);
     sendResponse(res, {
       message: "Token refreshed successfully!",
@@ -103,7 +103,7 @@ const refreshToken = handleAsyncRequest(
 );
 
 const logout = handleAsyncRequest(async (_req: Request, res: Response) => {
-  res.clearCookie("wisperRefreshToken", { httpOnly: true });
+  res.clearCookie("global8RefreshToken", { httpOnly: true });
   sendResponse(res, {
     message: "Logged out successfully!",
     data: null,

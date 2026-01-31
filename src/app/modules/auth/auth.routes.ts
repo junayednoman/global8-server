@@ -1,5 +1,5 @@
 import { Router } from "express";
-import handleZodValidation from "../../middlewares/handleZodValidation";
+import validate from "../../middlewares/validate";
 import {
   changeAccountStatusZod,
   changePasswordZod,
@@ -16,16 +16,12 @@ const router = Router();
 router.get("/:id", authorize(UserRole.ADMIN), authController.getSingle);
 router.get("/refresh-token", authController.refreshToken);
 router.get("/", authorize(UserRole.ADMIN), authController.getAll);
-router.post("/signup", handleZodValidation(signupZod), authController.signup);
-router.post(
-  "/login",
-  handleZodValidation(loginZodSchema),
-  authController.login
-);
+router.post("/signup", validate(signupZod), authController.signup);
+router.post("/login", validate(loginZodSchema), authController.login);
 
 router.post(
   "/reset-password",
-  handleZodValidation(resetPasswordZod),
+  validate(resetPasswordZod),
   authController.resetPassword
 );
 
@@ -40,14 +36,14 @@ router.post(
     UserRole.USER,
     UserRole.VENDOR
   ),
-  handleZodValidation(changePasswordZod),
+  validate(changePasswordZod),
   authController.changePassword
 );
 
 router.patch(
   "/change-account-status/:userId",
   authorize(UserRole.ADMIN),
-  handleZodValidation(changeAccountStatusZod),
+  validate(changeAccountStatusZod),
   authController.changeAccountStatus
 );
 

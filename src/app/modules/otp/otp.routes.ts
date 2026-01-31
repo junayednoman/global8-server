@@ -1,5 +1,5 @@
 import { Router } from "express";
-import handleZodValidation from "../../middlewares/handleZodValidation";
+import validate from "../../middlewares/validate";
 import { otpController } from "./otp.controller";
 import { verifyOtpZod } from "./otp.validation";
 
@@ -7,10 +7,6 @@ const router = Router();
 
 router.post("/send", otpController.sendOtp);
 
-router.post(
-  "/verify",
-  handleZodValidation(verifyOtpZod),
-  otpController.verifyOtp
-);
+router.post("/verify", validate(verifyOtpZod), otpController.verifyOtp);
 
 export const otpRoutes = router;
