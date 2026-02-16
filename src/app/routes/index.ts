@@ -7,6 +7,10 @@ import { profileRoutes } from "../modules/profile/profile.routes";
 import { eventRoutes } from "../modules/event/event.routes";
 import { purchasedEventRoutes } from "../modules/purchasedEvent/purchasedEvent.routes";
 import { productRoutes } from "../modules/product/product.routes";
+import { favoriteProductRoutes } from "../modules/favoriteProduct/favoriteProduct.routes";
+import { favoriteEventRoutes } from "../modules/favoriteEvent/favoriteEvent.routes";
+import { favoriteClassRoutes } from "../modules/favoriteClass/favoriteClass.routes";
+import { favoriteDJEventRoutes } from "../modules/favoriteDJEvent/favoriteDJEvent.routes";
 
 const router = Router();
 
@@ -18,6 +22,10 @@ const routes = [
   { path: "/events", route: eventRoutes },
   { path: "/purchased-event", route: purchasedEventRoutes },
   { path: "/products", route: productRoutes },
+  { path: "/favorite-products", route: favoriteProductRoutes },
+  { path: "/favorite-events", route: favoriteEventRoutes },
+  { path: "/favorite-classes", route: favoriteClassRoutes },
+  { path: "/favorite-dj-events", route: favoriteDJEventRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 

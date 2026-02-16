@@ -134,6 +134,7 @@ model FavoriteEvent {
   authId  String
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
+  createdAt DateTime @default(now())
 
   @@map("favorite_event")
 }
@@ -181,6 +182,7 @@ model FavoriteProduct {
   authId    String
   product   Product @relation(fields: [productId], references: [id])
   productId String
+  createdAt DateTime @default(now())
 
   @@map("favorite_product")
 }
@@ -206,6 +208,7 @@ model FavoriteDJEvent {
   authId    String
   djEvent   DJEvent @relation(fields: [djEventId], references: [id])
   djEventId String
+  createdAt DateTime @default(now())
 
   @@map("favorite_dj_event")
 }
@@ -241,6 +244,7 @@ model FavoriteClass {
   authId  String
   class   Class  @relation(fields: [classId], references: [id])
   classId String
+  createdAt DateTime @default(now())
 
   @@map("favorite_class")
 }
