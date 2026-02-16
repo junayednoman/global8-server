@@ -44,6 +44,8 @@ model Auth {
   followers             Follow[]               @relation("FollowerRelation")
   followings            Follow[]               @relation("FollowingRelation")
   admin                 Admin?
+  payments              Payment[]              @relation("payerPayments")
+  receivedPayments      Payment[]              @relation("receiverPayments")
 
   @@map("auth")
 }
@@ -116,7 +118,7 @@ model Event {
   date            DateTime?
   isFree          Boolean          @default(true)
   amount          Int?
-  videos          String[]         @default([])
+  video           String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   purchasedEvents PurchasedEvent[]
@@ -128,7 +130,7 @@ model Event {
 
 model FavoriteEvent {
   id      String @id @default(uuid())
-  user    Auth   @relation(fields: [authId], references: [id])
+  auth    Auth   @relation(fields: [authId], references: [id])
   authId  String
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
@@ -142,7 +144,7 @@ model PurchasedEvent {
   attendanceId String
   event        Event    @relation(fields: [eventId], references: [id])
   eventId      String
-  date         DateTime @default(now())
+  purchasedAt  DateTime @default(now())
 
   @@map("purchased_event")
 }
@@ -151,8 +153,8 @@ model Product {
   id               String            @id @default(uuid())
   vendor           Auth              @relation(fields: [vendorId], references: [id])
   vendorId         String
-  image            String?
   title            String
+  type             ProductType       @default(SHOE)
   description      String?
   price            Int
   quantity         Int               @default(0)
@@ -175,7 +177,7 @@ model Product {
 
 model FavoriteProduct {
   id        String  @id @default(uuid())
-  user      Auth    @relation(fields: [authId], references: [id])
+  auth      Auth    @relation(fields: [authId], references: [id])
   authId    String
   product   Product @relation(fields: [productId], references: [id])
   productId String
@@ -200,7 +202,7 @@ model DJEvent {
 
 model FavoriteDJEvent {
   id        String  @id @default(uuid())
-  user      Auth    @relation(fields: [authId], references: [id])
+  auth      Auth    @relation(fields: [authId], references: [id])
   authId    String
   djEvent   DJEvent @relation(fields: [djEventId], references: [id])
   djEventId String
@@ -235,7 +237,7 @@ model Class {
 
 model FavoriteClass {
   id      String @id @default(uuid())
-  user    Auth   @relation(fields: [authId], references: [id])
+  auth    Auth   @relation(fields: [authId], references: [id])
   authId  String
   class   Class  @relation(fields: [classId], references: [id])
   classId String
@@ -464,6 +466,35 @@ model Staff {
   role   String
 
   @@map("staff")
+}
+
+model Payment {
+  id            String         @id @default(uuid())
+  payerId       String
+  receiverId    String
+  amount        Int
+  transactionId String         @unique
+  purpose       PaymentPurpose
+  paidAt        DateTime       @default(now())
+
+  payer    Auth @relation("payerPayments", fields: [payerId], references: [id])
+  receiver Auth @relation("receiverPayments", fields: [receiverId], references: [id])
+
+  @@map("payment")
+}
+
+enum PaymentPurpose {
+  CLASS
+  EXCLUSIVE_CONTENT
+  PRODUCT
+  EVENT
+}
+
+enum ProductType {
+  HELMET
+  PAD
+  ACCESSORY
+  SHOE
 }
 
 enum FileType {

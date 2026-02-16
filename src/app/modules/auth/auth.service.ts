@@ -1,5 +1,5 @@
 import { LoginProvider, Prisma, UserRole, UserStatus } from "@prisma/client";
-import ApiError from "../../middlewares/classes/ApiError";
+import ApiError from "../../classes/ApiError";
 import prisma from "../../utils/prisma";
 import { sendEmail } from "../../utils/sendEmail";
 import {

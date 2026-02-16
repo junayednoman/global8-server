@@ -2,7 +2,7 @@ import { UserStatus } from "@prisma/client";
 import generateOTP from "../../utils/generateOTP";
 import prisma from "../../utils/prisma";
 import { sendEmail } from "../../utils/sendEmail";
-import ApiError from "../../middlewares/classes/ApiError";
+import ApiError from "../../classes/ApiError";
 import bcrypt from "bcrypt";
 import { TVerifyOtpInput } from "./otp.validation";
 

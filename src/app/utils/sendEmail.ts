@@ -1,6 +1,6 @@
 import fs from "fs";
 import axios from "axios";
-import ApiError from "../middlewares/classes/ApiError";
+import ApiError from "../classes/ApiError";
 import config from "../config";
 
 type Replacements = Record<string, string | number>;

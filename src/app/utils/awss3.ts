@@ -3,7 +3,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 import config from "../config";
 import multer, { memoryStorage } from "multer";
 import { TFile } from "../interface/file.interface";
-import ApiError from "../middlewares/classes/ApiError";
+import ApiError from "../classes/ApiError";
 
 export const s3Client = new S3Client({
   // endpoint: config.aws.endpoint as string,

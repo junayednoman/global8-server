@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import jwt, { Secret } from "jsonwebtoken";
 import { TAuthUser, TRequest } from "../interface/global.interface";
-import ApiError from "./classes/ApiError";
+import ApiError from "../classes/ApiError";
 import config from "../config";
 
 const authorize = (...roles: string[]) => {
