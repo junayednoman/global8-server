@@ -18,6 +18,21 @@ export const upload = multer({
   storage: memoryStorage(),
 });
 
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+export const uploadImage = multer({
+  storage: memoryStorage(),
+  limits: { fileSize: MAX_IMAGE_SIZE },
+  fileFilter: (_req, file, cb) => {
+    if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
+      cb(new ApiError(400, "Only jpeg, png, and webp images are allowed"));
+      return;
+    }
+    cb(null, true);
+  },
+});
+
 //upload a single file
 export const uploadToS3 = async (file: TFile): Promise<string> => {
   const fileName = `global8/${Date.now()}-${file.originalname}`;

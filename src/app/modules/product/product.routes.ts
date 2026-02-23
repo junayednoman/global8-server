@@ -21,7 +21,7 @@ router.post(
 );
 
 router.get("/", ProductController.getAll);
-router.get("/:id", ProductController.getSingle);
+router.get("/:id", authorize({ optional: true }, UserRole.USER), ProductController.getSingle);
 
 router.post(
   "/:id/colors",

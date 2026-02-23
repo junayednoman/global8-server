@@ -5,6 +5,8 @@ import handleAsyncRequest from "../../utils/handleAsyncRequest";
 import { sendResponse } from "../../utils/sendResponse";
 
 const getMyProfile = handleAsyncRequest(
+
+
   async (req: TRequest, res: Response) => {
     const authId = (req.user as TAuthUser).id;
     const result = await ProfileService.getMyProfile(authId);

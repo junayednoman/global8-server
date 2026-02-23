@@ -100,7 +100,8 @@ const getAll = async (
 
 const getSingle = async (id: string, authId?: string) => {
   const product = await prisma.product.findUnique({ where: { id } });
-
+  
+  if (!product) return product;
   if (!authId) {
     return { ...product, isBookmarked: false };
   }
