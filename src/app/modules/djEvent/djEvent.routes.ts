@@ -16,7 +16,7 @@ router.post(
   DJEventController.create
 );
 
-router.get("/", DJEventController.getAll);
+router.get("/", authorize({ optional: true }), DJEventController.getAll);
 router.get("/:id", authorize({ optional: true }, UserRole.USER), DJEventController.getSingle);
 
 router.patch(

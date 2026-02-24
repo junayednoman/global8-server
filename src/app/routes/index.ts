@@ -10,6 +10,7 @@ import { productRoutes } from "../modules/product/product.routes";
 import { favoriteProductRoutes } from "../modules/favoriteProduct/favoriteProduct.routes";
 import { favoriteEventRoutes } from "../modules/favoriteEvent/favoriteEvent.routes";
 import { favoriteClassRoutes } from "../modules/favoriteClass/favoriteClass.routes";
+import { classRoutes } from "../modules/class/class.routes";
 import { favoriteDJEventRoutes } from "../modules/favoriteDJEvent/favoriteDJEvent.routes";
 import { djEventRoutes } from "../modules/djEvent/djEvent.routes";
 
@@ -28,6 +29,7 @@ const routes = [
   { path: "/favorite-classes", route: favoriteClassRoutes },
   { path: "/favorite-dj-events", route: favoriteDJEventRoutes },
   { path: "/dj-events", route: djEventRoutes },
+  { path: "/classes", route: classRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 

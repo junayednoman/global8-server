@@ -129,11 +129,11 @@ model Event {
 }
 
 model FavoriteEvent {
-  id      String @id @default(uuid())
-  auth    Auth   @relation(fields: [authId], references: [id])
-  authId  String
-  event   Event  @relation(fields: [eventId], references: [id])
-  eventId String
+  id        String   @id @default(uuid())
+  auth      Auth     @relation(fields: [authId], references: [id])
+  authId    String
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   String
   createdAt DateTime @default(now())
 
   @@map("favorite_event")
@@ -177,10 +177,10 @@ model Product {
 }
 
 model FavoriteProduct {
-  id        String  @id @default(uuid())
-  auth      Auth    @relation(fields: [authId], references: [id])
+  id        String   @id @default(uuid())
+  auth      Auth     @relation(fields: [authId], references: [id])
   authId    String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
   productId String
   createdAt DateTime @default(now())
 
@@ -195,6 +195,7 @@ model DJEvent {
   title            String
   description      String?
   date             DateTime
+  status           DJEventStatus     @default(UPCOMING)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   favoriteDJEvents FavoriteDJEvent[]
@@ -203,10 +204,10 @@ model DJEvent {
 }
 
 model FavoriteDJEvent {
-  id        String  @id @default(uuid())
-  auth      Auth    @relation(fields: [authId], references: [id])
+  id        String   @id @default(uuid())
+  auth      Auth     @relation(fields: [authId], references: [id])
   authId    String
-  djEvent   DJEvent @relation(fields: [djEventId], references: [id])
+  djEvent   DJEvent  @relation(fields: [djEventId], references: [id])
   djEventId String
   createdAt DateTime @default(now())
 
@@ -220,6 +221,7 @@ model Class {
   title            String
   description      String?
   poster           String?
+  location         String?
   type             ClassType
   skillLevel       ClassSkillLevel
   date             DateTime
@@ -239,11 +241,11 @@ model Class {
 }
 
 model FavoriteClass {
-  id      String @id @default(uuid())
-  auth    Auth   @relation(fields: [authId], references: [id])
-  authId  String
-  class   Class  @relation(fields: [classId], references: [id])
-  classId String
+  id        String   @id @default(uuid())
+  auth      Auth     @relation(fields: [authId], references: [id])
+  authId    String
+  class     Class    @relation(fields: [classId], references: [id])
+  classId   String
   createdAt DateTime @default(now())
 
   @@map("favorite_class")
@@ -577,4 +579,10 @@ enum UserRole {
   DJ
   VENDOR
   TEACHER
+}
+
+enum DJEventStatus {
+  UPCOMING
+  LIVE
+  ENDED
 }

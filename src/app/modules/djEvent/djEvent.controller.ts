@@ -16,9 +16,9 @@ const create = handleAsyncRequest(async (req: TRequest, res) => {
   });
 });
 
-const getAll = handleAsyncRequest(async (req, res) => {
+const getAll = handleAsyncRequest(async (req: TRequest, res) => {
   const options = pick(req.query, ["page", "limit", "sortBy", "orderBy"]);
-  const result = await DJEventService.getAll(options, req.query);
+  const result = await DJEventService.getAll(options, req.query, req.user?.id);
 
   sendResponse(res, {
     message: "DJ events retrieved successfully!",

@@ -43,7 +43,8 @@ const create = async (djId: string, payload: TCreateDJEvent, file?: TFile) => {
 
 const getAll = async (
   options: TPaginationOptions,
-  query: Record<string, any>
+  query: Record<string, any>,
+  authId?: string
 ) => {
   const page = Number(options.page ?? 1);
   const limit = Number(options.limit ?? 10);
@@ -131,17 +132,36 @@ const getAll = async (
     where: whereConditions,
   });
 
+  const eventIds = djEvents.map(event => event.id);
+  let bookmarkedEventIds = new Set<string>();
+
+  if (authId && eventIds.length > 0) {
+    const bookmarks = await prisma.favoriteDJEvent.findMany({
+      where: {
+        authId,
+        djEventId: { in: eventIds },
+      },
+      select: { djEventId: true },
+    });
+
+    bookmarkedEventIds = new Set(bookmarks.map(bookmark => bookmark.djEventId));
+  }
+
+  const djEventsWithBookmarkStatus = djEvents.map(event => ({
+    ...event,
+    isBookmarked: bookmarkedEventIds.has(event.id),
+  }));
+
   const meta = {
     page: currentPage,
     limit: take,
     total,
   };
 
-  return { meta, djEvents };
+  return { meta, djEvents: djEventsWithBookmarkStatus };
 };
 
 const getSingle = async (id: string, authId?: string) => {
-  console.log('authId', authId);
   const djEvent = await prisma.dJEvent.findUnique({ where: { id } });
   if (!djEvent) return djEvent;
   if (!authId) {
