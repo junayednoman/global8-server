@@ -215,24 +215,23 @@ model FavoriteDJEvent {
 }
 
 model Class {
-  id               String                @id @default(uuid())
-  teacher          Auth                  @relation(fields: [teacherId], references: [id])
+  id               String            @id @default(uuid())
+  teacher          Auth              @relation(fields: [teacherId], references: [id])
   teacherId        String
   title            String
   description      String?
   poster           String?
   location         String?
+  liveClassLink    String?
   type             ClassType
   skillLevel       ClassSkillLevel
-  date             DateTime
+  date             DateTime?
   isFree           Boolean
   amount           Int?
   capacity         Int?
-  videos           Json                  @default("[]")
-  isPackage        Boolean               @default(false)
-  packageInterval  ClassPackageInterval?
-  createdAt        DateTime              @default(now())
-  updatedAt        DateTime              @updatedAt
+  videos           Json              @default("[]")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   favoriteClasses  FavoriteClass[]
   classEnrollments ClassEnrollment[]
   feedbacks        Feedback[]
@@ -259,6 +258,8 @@ model ClassEnrollment {
   classId   String
   status    EnrollmentStatus @default(PENDING)
   date      DateTime         @default(now())
+  payment   Payment?         @relation(fields: [paymentId], references: [id])
+  paymentId String?          @unique
 
   @@map("class_enrollment")
 }
@@ -475,16 +476,21 @@ model Staff {
 }
 
 model Payment {
-  id            String         @id @default(uuid())
-  payerId       String
-  receiverId    String
-  amount        Int
-  transactionId String         @unique
-  purpose       PaymentPurpose
-  paidAt        DateTime       @default(now())
+  id                    String         @id @default(uuid())
+  payerId               String
+  receiverId            String
+  amount                Int
+  transactionId         String         @unique
+  purpose               PaymentPurpose
+  stripeSessionId       String?
+  stripePaymentIntentId String?        @unique
+  refundedAt            DateTime?
+  stripeRefundId        String?
+  paidAt                DateTime       @default(now())
 
-  payer    Auth @relation("payerPayments", fields: [payerId], references: [id])
-  receiver Auth @relation("receiverPayments", fields: [receiverId], references: [id])
+  payer           Auth             @relation("payerPayments", fields: [payerId], references: [id])
+  receiver        Auth             @relation("receiverPayments", fields: [receiverId], references: [id])
+  classEnrollment ClassEnrollment?
 
   @@map("payment")
 }
@@ -533,10 +539,13 @@ enum OrderStatus {
 enum EnrollmentStatus {
   PENDING
   ENROLLED
+  DENIED
+  CANCELED
 }
 
 enum ClassType {
-  VIRTUAL
+  VIRTUAL_RECORDED
+  VIRTUAL_LIVE
   OFFLINE
 }
 
@@ -544,13 +553,6 @@ enum ClassSkillLevel {
   BEGINNER
   INTERMEDIATE
   PRO
-}
-
-enum ClassPackageInterval {
-  ONE
-  THREE
-  SIX
-  TWELVE
 }
 
 enum EventType {

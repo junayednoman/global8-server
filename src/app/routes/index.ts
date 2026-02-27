@@ -13,6 +13,7 @@ import { favoriteClassRoutes } from "../modules/favoriteClass/favoriteClass.rout
 import { classRoutes } from "../modules/class/class.routes";
 import { favoriteDJEventRoutes } from "../modules/favoriteDJEvent/favoriteDJEvent.routes";
 import { djEventRoutes } from "../modules/djEvent/djEvent.routes";
+import { classEnrollmentRoutes } from "../modules/classEnrollment/classEnrollment.routes";
 
 const router = Router();
 
@@ -30,6 +31,7 @@ const routes = [
   { path: "/favorite-dj-events", route: favoriteDJEventRoutes },
   { path: "/dj-events", route: djEventRoutes },
   { path: "/classes", route: classRoutes },
+  { path: "/class-enrollments", route: classEnrollmentRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 

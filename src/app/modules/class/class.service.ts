@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { EnrollmentStatus, Prisma } from "@prisma/client";
 import ApiError from "../../classes/ApiError";
 import { TFile } from "../../interface/file.interface";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
@@ -35,17 +35,23 @@ const create = async (
   payload: TCreateClass,
   file?: TFile
 ) => {
-  const classDate = parseDateOrThrow(payload.date);
-  assertFutureDate(classDate);
+  let classDate: Date | undefined = undefined;
+  if (payload.date) {
+    classDate = parseDateOrThrow(payload.date);
+    assertFutureDate(classDate);
+  }
 
   if (!payload.isFree && payload.amount === undefined) {
     throw new ApiError(400, "Amount is required for paid classes");
   }
-  if (payload.isPackage && !payload.packageInterval) {
-    throw new ApiError(400, "Package interval is required for packages");
-  }
   if (payload.type === "OFFLINE" && !payload.location) {
     throw new ApiError(400, "Location is required for offline classes");
+  }
+  if (payload.type === "VIRTUAL_LIVE" && !payload.liveClassLink) {
+    throw new ApiError(
+      400,
+      "Live class link is required for virtual live classes"
+    );
   }
 
   let posterUrl: string | undefined;
@@ -115,12 +121,23 @@ const getAll = async (
   if (query.isFree !== undefined) {
     andConditions.push({ isFree: query.isFree === "true" });
   }
-  if (query.isPackage !== undefined) {
-    andConditions.push({ isPackage: query.isPackage === "true" });
-  }
-
   if (typeof query.date === "string" && query.date.trim()) {
     andConditions.push({ date: parseDateOrThrow(query.date) });
+  }
+  if (query.enrolled !== undefined) {
+    if (!authId) {
+      throw new ApiError(401, "Unauthorized");
+    }
+    if (query.enrolled === "true") {
+      andConditions.push({
+        classEnrollments: {
+          some: {
+            studentId: authId,
+            status: EnrollmentStatus.ENROLLED,
+          },
+        },
+      });
+    }
   }
 
   const whereConditions: Prisma.ClassWhereInput =
@@ -143,10 +160,12 @@ const getAll = async (
     skip,
     take,
     orderBy: { [sortBy]: (orderBy ?? "desc") as "asc" | "desc" },
-    include: {
-      teacher: {
-        select: { id: true, profile: { select: { name: true, image: true } } },
-      },
+    select: {
+      id: true,
+      title: true,
+      poster: true,
+      type: true,
+      skillLevel: true,
     },
   });
 
@@ -163,7 +182,11 @@ const getAll = async (
         select: { classId: true },
       }),
       prisma.classEnrollment.findMany({
-        where: { studentId: authId, classId: { in: classIds } },
+        where: {
+          studentId: authId,
+          classId: { in: classIds },
+          status: EnrollmentStatus.ENROLLED,
+        },
         select: { classId: true },
       }),
     ]);
@@ -173,7 +196,6 @@ const getAll = async (
 
   const classesWithStatus = classes.map(c => ({
     ...c,
-    videos: sanitizeClassVideos(c.videos),
     isBookmarked: bookmarkedClassIds.has(c.id),
     isEnrolled: enrolledClassIds.has(c.id),
   }));
@@ -208,7 +230,11 @@ const getSingle = async (id: string, authId?: string) => {
       select: { id: true },
     }),
     prisma.classEnrollment.findFirst({
-      where: { classId: id, studentId: authId },
+      where: {
+        classId: id,
+        studentId: authId,
+        status: EnrollmentStatus.ENROLLED,
+      },
       select: { id: true },
     }),
   ]);
@@ -276,24 +302,18 @@ const update = async (
   if (!mergedFree && !mergedAmount)
     throw new ApiError(400, "Amount required if changing to a paid class");
 
-  const mergedPackage =
-    payload.isPackage !== undefined ? payload.isPackage : targetClass.isPackage;
-  const mergedInterval =
-    payload.packageInterval !== undefined
-      ? payload.packageInterval
-      : targetClass.packageInterval;
-  if (mergedPackage && !mergedInterval)
-    throw new ApiError(
-      400,
-      "Package interval required if changing to a package"
-    );
-
   const mergedType =
     payload.type !== undefined ? payload.type : targetClass.type;
   const mergedLocation =
     payload.location !== undefined ? payload.location : targetClass.location;
   if (mergedType === "OFFLINE" && !mergedLocation)
     throw new ApiError(400, "Location required for offline class");
+  const mergedLiveClassLink =
+    payload.liveClassLink !== undefined
+      ? payload.liveClassLink
+      : targetClass.liveClassLink;
+  if (mergedType === "VIRTUAL_LIVE" && !mergedLiveClassLink)
+    throw new ApiError(400, "Live class link required for virtual live class");
 
   let uploadedPosterUrl: string | undefined;
   if (file) {
@@ -334,7 +354,10 @@ const remove = async (id: string, teacherId: string) => {
     throw new ApiError(403, "Not authorized to delete this class");
 
   const enrollmentCount = await prisma.classEnrollment.count({
-    where: { classId: id },
+    where: {
+      classId: id,
+      status: { in: [EnrollmentStatus.PENDING, EnrollmentStatus.ENROLLED] },
+    },
   });
   if (enrollmentCount > 0) {
     throw new ApiError(

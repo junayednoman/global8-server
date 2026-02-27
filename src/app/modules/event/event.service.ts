@@ -121,8 +121,13 @@ const getAll = async (
   return { meta, events };
 };
 
-const getSingle = async (id: string, authId: string) => {
+const getSingle = async (id: string, authId?: string) => {
   const event = await prisma.event.findUnique({ where: { id } });
+  if (!event) return null;
+
+  if (!authId) {
+    return { ...event, isPurchased: false, isBookmarked: false };
+  }
 
   const purchasedEvent = await prisma.purchasedEvent.findFirst({
     where: { eventId: id, attendanceId: authId },

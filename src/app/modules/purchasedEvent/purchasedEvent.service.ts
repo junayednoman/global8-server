@@ -73,6 +73,10 @@ const createPurchaseEventPaymentSession = async (
 const eventPurchasePaymentCallback = async (query: Record<string, any>) => {
   const { sessionId, payerId, transactionId, eventId } = query;
 
+  if (!sessionId || !payerId || !transactionId || !eventId) {
+    throw new ApiError(400, "Missing payment callback parameters");
+  }
+
   const session = await stripe.checkout.sessions.retrieve(sessionId);
   if (session.payment_status === "paid") {
     const event = await prisma.event.findUniqueOrThrow({

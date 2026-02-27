@@ -23,4 +23,3 @@ export const assertFutureDate = (
     throw new ApiError(400, message);
   }
 };
-

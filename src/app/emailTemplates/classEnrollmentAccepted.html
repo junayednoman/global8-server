@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enrollment Accepted</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f6f6f6;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+      }
+
+      .header {
+        background: #6121c8;
+        border: 2px solid #6121c8;
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+      }
+
+      .body {
+        padding: 30px 25px;
+        color: #333333;
+        line-height: 1.6;
+        font-size: 15px;
+      }
+
+      .body h2 {
+        margin-top: 0;
+        font-size: 20px;
+        color: #6121c8;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 12px;
+        color: #6c757d;
+        background: #fafafa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Global8 Class Enrollment</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <h2>Hi {{name}},</h2>
+        <p>
+          Your enrollment request for <strong>{{classTitle}}</strong> has been
+          accepted by <strong>{{teacherName}}</strong>.
+        </p>
+        <p>{{paymentNote}}</p>
+        <p style="margin-top: 25px">
+          Cheers,<br />
+          The Global8 Team
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>This is an automated message, please don’t reply.</p>
+        <p>&copy; {{year}} Global8. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

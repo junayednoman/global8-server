@@ -19,7 +19,15 @@ const create = handleAsyncRequest(async (req: TRequest, res) => {
 
 const getAll = handleAsyncRequest(async (req: TRequest, res) => {
   const options = pick(req.query, ["page", "limit", "sortBy", "orderBy"]);
-  const filters = pick(req.query, ["searchTerm", "teacherId", "type", "skillLevel", "isFree", "isPackage", "date"]);
+  const filters = pick(req.query, [
+    "searchTerm",
+    "teacherId",
+    "type",
+    "skillLevel",
+    "isFree",
+    "date",
+    "enrolled",
+  ]);
 
   const result = await ClassService.getAll(options, filters, req.user?.id as string | undefined);
 
