@@ -18,7 +18,11 @@ const addItem = handleAsyncRequest(async (req: TRequest, res: Response) => {
 
 const getMyCart = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const authId = (req.user as TAuthUser).id;
-  const result = await CartService.getMyCart(authId);
+  const searchTerm =
+    typeof req.query.searchTerm === "string" ? req.query.searchTerm : undefined;
+  const vendorId =
+    typeof req.query.vendorId === "string" ? req.query.vendorId : undefined;
+  const result = await CartService.getMyCart(authId, searchTerm, vendorId);
 
   sendResponse(res, {
     message: "Cart retrieved successfully!",

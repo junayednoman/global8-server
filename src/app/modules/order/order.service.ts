@@ -53,21 +53,18 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
     throw new ApiError(400, "Cart has expired");
   }
 
-  const vendorIds = Array.from(
-    new Set(cart.cartItems.map(item => item.product.vendorId))
+  const vendorCartItems = cart.cartItems.filter(
+    item => item.product.vendorId === payload.vendorId
   );
-  if (vendorIds.length > 1) {
-    throw new ApiError(
-      400,
-      "Please checkout products from one vendor at a time"
-    );
+  if (vendorCartItems.length === 0) {
+    throw new ApiError(400, "No cart items found for the selected vendor");
   }
 
-  const subtotal = cart.cartItems.reduce(
+  const subtotal = vendorCartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const shippingFee = cart.cartItems.reduce(
+  const shippingFee = vendorCartItems.reduce(
     (sum, item) => sum + (item.product.shippingCost ?? 0) * item.quantity,
     0
   );
@@ -75,7 +72,7 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
 
   const generatedOrderId = generateOrderId();
   const transactionId = generateTransactionId("ord");
-  const receiverId = vendorIds[0] ?? null;
+  const receiverId = payload.vendorId;
   const session =
     total > 0
       ? await createCheckoutSession(
@@ -83,7 +80,7 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
           {
             id: "pending-order",
             orderId: generatedOrderId,
-            orderItems: cart.cartItems.map(item => ({
+            orderItems: vendorCartItems.map(item => ({
               productTitle: item.product.title,
               price: item.price,
               quantity: item.quantity,
@@ -94,7 +91,7 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
       : null;
 
   const newOrder = await prisma.$transaction(async tx => {
-    for (const item of cart.cartItems) {
+    for (const item of vendorCartItems) {
       const latestProduct = await tx.product.findUnique({
         where: { id: item.productId },
         select: { quantity: true },
@@ -123,7 +120,7 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
     });
 
     await tx.orderItem.createMany({
-      data: cart.cartItems.map(item => ({
+      data: vendorCartItems.map(item => ({
         orderId: order.id,
         productId: item.productId,
         vendorId: item.product.vendorId,
@@ -136,7 +133,7 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
       })),
     });
 
-    for (const item of cart.cartItems) {
+    for (const item of vendorCartItems) {
       await tx.product.update({
         where: { id: item.productId },
         data: { quantity: { decrement: item.quantity } },
@@ -144,7 +141,10 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
     }
 
     await tx.cartItem.deleteMany({
-      where: { cartId: cart.id },
+      where: {
+        cartId: cart.id,
+        product: { vendorId: payload.vendorId },
+      },
     });
 
     if (total > 0) {

@@ -95,7 +95,11 @@ const addItem = async (authId: string, payload: TAddToCart) => {
   };
 };
 
-const getMyCart = async (authId: string) => {
+const getMyCart = async (
+  authId: string,
+  searchTerm?: string,
+  vendorId?: string
+) => {
   const now = new Date();
   const cart = await prisma.cart.findUnique({
     where: { authId },
@@ -124,8 +128,32 @@ const getMyCart = async (authId: string) => {
     };
   }
 
+  const normalizedSearchTerm =
+    typeof searchTerm === "string" ? searchTerm.trim() : "";
+  const normalizedVendorId = typeof vendorId === "string" ? vendorId.trim() : "";
+
   const items = await prisma.cartItem.findMany({
-    where: { cartId: cart.id },
+    where: {
+      cartId: cart.id,
+      ...(normalizedVendorId
+        ? {
+            product: {
+              vendorId: normalizedVendorId,
+            },
+          }
+        : {}),
+      ...(normalizedSearchTerm
+        ? {
+            product: {
+              ...(normalizedVendorId ? { vendorId: normalizedVendorId } : {}),
+              title: {
+                contains: normalizedSearchTerm,
+                mode: "insensitive" as const,
+              },
+            },
+          }
+        : {}),
+    },
     include: {
       product: {
         select: {
