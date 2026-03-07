@@ -17,6 +17,7 @@ import { classEnrollmentRoutes } from "../modules/classEnrollment/classEnrollmen
 import { teacherRoutes } from "../modules/teacher/teacher.routes";
 import { cartRoutes } from "../modules/cart/cart.routes";
 import { productOrderRoutes } from "../modules/productOrder/productOrder.routes";
+import { feedbackRoutes } from "../modules/feedback/feedback.routes";
 
 const router = Router();
 
@@ -38,6 +39,7 @@ const routes = [
   { path: "/teachers", route: teacherRoutes },
   { path: "/cart", route: cartRoutes },
   { path: "/product-orders", route: productOrderRoutes },
+  { path: "/feedback", route: feedbackRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 
