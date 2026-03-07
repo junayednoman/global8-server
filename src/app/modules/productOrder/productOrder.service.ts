@@ -19,7 +19,6 @@ import {
   generateOrderId,
   getPagination,
   getProductImage,
-  mapOrderStatusForUi,
   retrieveCheckoutSession,
 } from "./productOrder.utils";
 import {
@@ -349,12 +348,7 @@ const getAll = async (
   const status =
     typeof query.status === "string" ? query.status.toUpperCase() : undefined;
   if (status) {
-    const allowed = new Set([
-      "PROCESSING",
-      "READY_TO_SHIP",
-      "SHIPPED",
-      "DELIVERED",
-    ]);
+    const allowed = new Set(["PROCESSING", "READY_TO_SHIP", "SHIPPED"]);
     if (!allowed.has(status)) throw new ApiError(400, "Invalid status value");
     andConditions.push({ status: status as OrderStatus });
   }
@@ -419,8 +413,9 @@ const getAll = async (
   });
 
   const sanitizedOrders = orders.map(order => ({
+    id: order.id,
     orderId: order.orderId,
-    status: mapOrderStatusForUi(order.status),
+    status: order.status,
     placedAt: order.date,
     item:
       order.orderItems[0] === undefined
@@ -443,16 +438,35 @@ const getAll = async (
 const getDetails = async (id: string, auth: TAuthUser) => {
   const order = await ensureOrderAccess(id, auth);
 
-  const orderItems =
+  const scopedOrderItems =
     auth.role === UserRole.VENDOR
       ? order.orderItems.filter(item => item.vendorId === auth.id)
       : order.orderItems;
 
   return {
-    ...order,
-    status: mapOrderStatusForUi(order.status),
-    orderItems,
-    latestPayment: order.payments[0] ?? null,
+    id: order.id,
+    orderId: order.orderId,
+    status: order.status,
+    placedAt: order.date,
+    items: scopedOrderItems.map(item => ({
+      image: item.productImage,
+      title: item.productTitle,
+      quantity: item.quantity,
+      size: item.size,
+      price: item.price,
+    })),
+    myInformation: {
+      name: order.customerName,
+      phone: order.customerPhone,
+      address: order.addressLine1,
+    },
+    paymentInformation: {
+      method: order.paymentMethod,
+      status: order.paymentStatus,
+      subtotal: order.subtotal,
+      shippingFee: order.shippingFee,
+      total: order.total,
+    },
   };
 };
 
@@ -466,8 +480,7 @@ const updateStatus = async (
   const statusFlow: Record<string, OrderStatus[]> = {
     PROCESSING: [OrderStatus.READY_TO_SHIP, OrderStatus.SHIPPED],
     READY_TO_SHIP: [OrderStatus.SHIPPED],
-    SHIPPED: [OrderStatus.DELIVERED],
-    DELIVERED: [],
+    SHIPPED: [],
   };
 
   const currentStatus = order.status;
@@ -477,8 +490,8 @@ const updateStatus = async (
   }
 
   const requiresPaidBeforeShipping =
-    payload.status === OrderStatus.SHIPPED ||
-    payload.status === OrderStatus.DELIVERED;
+    payload.status === OrderStatus.READY_TO_SHIP ||
+    payload.status === OrderStatus.SHIPPED;
   if (
     requiresPaidBeforeShipping &&
     order.paymentStatus !== OrderPaymentStatus.PAID

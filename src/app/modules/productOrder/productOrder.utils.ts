@@ -1,4 +1,4 @@
-import { OrderStatus, UserRole } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 import Stripe from "stripe";
 import ApiError from "../../classes/ApiError";
 import config from "../../config";
@@ -100,10 +100,6 @@ export const createCheckoutSession = async (
 
 export const retrieveCheckoutSession = async (sessionId: string) => {
   return stripe.checkout.sessions.retrieve(sessionId);
-};
-
-export const mapOrderStatusForUi = (status: OrderStatus) => {
-  return status === OrderStatus.READY_TO_SHIP ? "SHIPPED" : status;
 };
 
 export const getPagination = (options: {

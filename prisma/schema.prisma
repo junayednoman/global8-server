@@ -289,8 +289,8 @@ model CartItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("cart_item")
   @@unique([cartId, productId])
+  @@map("cart_item")
 }
 
 model Order {
@@ -560,7 +560,6 @@ enum OrderStatus {
   PROCESSING
   READY_TO_SHIP
   SHIPPED
-  DELIVERED
 }
 
 enum EnrollmentStatus {
