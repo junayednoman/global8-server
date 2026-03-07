@@ -269,22 +269,28 @@ model Cart {
   user      Auth       @relation(fields: [authId], references: [id])
   authId    String     @unique
   cartItems CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  expiresAt DateTime?
 
   @@map("cart")
 }
 
 model CartItem {
-  id        String  @id @default(uuid())
-  cart      Cart    @relation(fields: [cartId], references: [id])
+  id        String   @id @default(uuid())
+  cart      Cart     @relation(fields: [cartId], references: [id])
   cartId    String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
   productId String
   quantity  Int
   price     Int
   size      String?
   color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("cart_item")
+  @@unique([cartId, productId])
 }
 
 model Order {

@@ -15,6 +15,7 @@ import { favoriteDJEventRoutes } from "../modules/favoriteDJEvent/favoriteDJEven
 import { djEventRoutes } from "../modules/djEvent/djEvent.routes";
 import { classEnrollmentRoutes } from "../modules/classEnrollment/classEnrollment.routes";
 import { teacherRoutes } from "../modules/teacher/teacher.routes";
+import { cartRoutes } from "../modules/cart/cart.routes";
 
 const router = Router();
 
@@ -34,6 +35,7 @@ const routes = [
   { path: "/classes", route: classRoutes },
   { path: "/class-enrollments", route: classEnrollmentRoutes },
   { path: "/teachers", route: teacherRoutes },
+  { path: "/cart", route: cartRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 
