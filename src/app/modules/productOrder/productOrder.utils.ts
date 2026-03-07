@@ -55,7 +55,9 @@ export const ensureOrderAccess = async (orderId: string, auth: TAuthUser) => {
   }
 
   if (auth.role === UserRole.VENDOR) {
-    const hasVendorItem = order.orderItems.some(item => item.vendorId === auth.id);
+    const hasVendorItem = order.orderItems.some(
+      item => item.vendorId === auth.id
+    );
     if (!hasVendorItem) {
       throw new ApiError(403, "Not authorized to access this order");
     }
@@ -77,7 +79,7 @@ export const createCheckoutSession = async (
   },
   transactionId: string
 ) => {
-  const callbackEndpoint = config.payment.callback_endpoint;
+  const callbackEndpoint = config.payment.product_payment_callback_endpoint;
 
   return stripe.checkout.sessions.create({
     mode: "payment",
@@ -112,7 +114,8 @@ export const getPagination = (options: {
 }) => {
   const page = Number(options.page ?? 1);
   const limit = Number(options.limit ?? 10);
-  if (!Number.isFinite(page) || page < 1) throw new ApiError(400, "Invalid page");
+  if (!Number.isFinite(page) || page < 1)
+    throw new ApiError(400, "Invalid page");
   if (!Number.isFinite(limit) || limit < 1 || limit > 100) {
     throw new ApiError(400, "Invalid limit");
   }

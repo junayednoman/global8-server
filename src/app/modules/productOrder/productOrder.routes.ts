@@ -2,38 +2,41 @@ import { UserRole } from "@prisma/client";
 import { Router } from "express";
 import authorize from "../../middlewares/authorize";
 import validate from "../../middlewares/validate";
-import { OrderController } from "./order.controller";
-import { createOrderSchema, updateOrderStatusSchema } from "./order.validation";
+import { ProductOrderController } from "./productOrder.controller";
+import {
+  createProductOrderSchema,
+  updateProductOrderStatusSchema,
+} from "./productOrder.validation";
 
 const router = Router();
 
 router.post(
   "/",
   authorize(UserRole.USER),
-  validate(createOrderSchema),
-  OrderController.create
+  validate(createProductOrderSchema),
+  ProductOrderController.create
 );
 router.get(
   "/",
   authorize(UserRole.USER, UserRole.VENDOR, UserRole.ADMIN),
-  OrderController.getAll
+  ProductOrderController.getAll
 );
-router.get("/checkout-callback", OrderController.paymentCallback);
+router.get("/checkout-callback", ProductOrderController.paymentCallback);
 router.get(
   "/:id",
   authorize(UserRole.USER, UserRole.VENDOR, UserRole.ADMIN),
-  OrderController.getDetails
+  ProductOrderController.getDetails
 );
 router.post(
   "/:id/create-checkout-session",
   authorize(UserRole.USER),
-  OrderController.createPaymentSession
+  ProductOrderController.createPaymentSession
 );
 router.patch(
   "/:id/status",
   authorize(UserRole.VENDOR, UserRole.ADMIN),
-  validate(updateOrderStatusSchema),
-  OrderController.updateStatus
+  validate(updateProductOrderStatusSchema),
+  ProductOrderController.updateStatus
 );
 
-export const orderRoutes = router;
+export const productOrderRoutes = router;

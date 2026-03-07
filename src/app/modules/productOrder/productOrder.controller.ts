@@ -4,17 +4,14 @@ import { TAuthUser, TRequest } from "../../interface/global.interface";
 import handleAsyncRequest from "../../utils/handleAsyncRequest";
 import pick from "../../utils/pick";
 import { sendResponse } from "../../utils/sendResponse";
-import { OrderService } from "./order.service";
+import { ProductOrderService } from "./productOrder.service";
 
 const create = handleAsyncRequest(async (req: TRequest, res: Response) => {
-  const result = await OrderService.create(req.body, req.user as TAuthUser);
+  const result = await ProductOrderService.create(req.body, req.user as TAuthUser);
 
   sendResponse(res, {
-    status: result.type === "payment" ? 200 : 201,
-    message:
-      result.type === "payment"
-        ? "Order created and payment session generated successfully!"
-        : "Order placed successfully!",
+    status: 200,
+    message: "Order created successfully!",
     data: result,
   });
 });
@@ -23,7 +20,7 @@ const createPaymentSession = handleAsyncRequest(
   async (req: TRequest, res: Response) => {
     if (!req.params.id) throw new ApiError(400, "Order id is required");
 
-    const result = await OrderService.createPaymentSession(
+    const result = await ProductOrderService.createPaymentSession(
       req.params.id,
       req.user as TAuthUser
     );
@@ -37,7 +34,7 @@ const createPaymentSession = handleAsyncRequest(
 
 const paymentCallback = handleAsyncRequest(
   async (req: TRequest, res: Response) => {
-    await OrderService.paymentCallback(req.query);
+    await ProductOrderService.paymentCallback(req.query);
     sendResponse(res, {
       message: "Order payment processed successfully!",
       data: null,
@@ -48,7 +45,7 @@ const paymentCallback = handleAsyncRequest(
 const getAll = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const options = pick(req.query, ["page", "limit", "sortBy", "orderBy"]);
   const filters = pick(req.query, ["status", "paymentStatus", "searchTerm"]);
-  const result = await OrderService.getAll(
+  const result = await ProductOrderService.getAll(
     req.user as TAuthUser,
     options,
     filters
@@ -63,7 +60,7 @@ const getAll = handleAsyncRequest(async (req: TRequest, res: Response) => {
 const getDetails = handleAsyncRequest(async (req: TRequest, res: Response) => {
   if (!req.params.id) throw new ApiError(400, "Order id is required");
 
-  const result = await OrderService.getDetails(
+  const result = await ProductOrderService.getDetails(
     req.params.id,
     req.user as TAuthUser
   );
@@ -78,7 +75,7 @@ const updateStatus = handleAsyncRequest(
   async (req: TRequest, res: Response) => {
     if (!req.params.id) throw new ApiError(400, "Order id is required");
 
-    const result = await OrderService.updateStatus(
+    const result = await ProductOrderService.updateStatus(
       req.params.id,
       req.user as TAuthUser,
       req.body
@@ -91,7 +88,7 @@ const updateStatus = handleAsyncRequest(
   }
 );
 
-export const OrderController = {
+export const ProductOrderController = {
   create,
   createPaymentSession,
   paymentCallback,

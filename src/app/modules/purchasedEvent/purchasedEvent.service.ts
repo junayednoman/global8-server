@@ -52,7 +52,7 @@ const createPurchaseEventPaymentSession = async (
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     customer_email: auth.email,
-    success_url: `${config.payment.callback_endpoint}?sessionId={CHECKOUT_SESSION_ID}&payerId=${auth.id}&transactionId=${transactionId}&eventId=${event.id}`,
+    success_url: `${config.payment.event_payment_callback_endpoint}?sessionId={CHECKOUT_SESSION_ID}&payerId=${auth.id}&transactionId=${transactionId}&eventId=${event.id}`,
     line_items: [
       {
         price_data: {

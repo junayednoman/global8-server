@@ -21,10 +21,13 @@ import {
   getProductImage,
   mapOrderStatusForUi,
   retrieveCheckoutSession,
-} from "./order.utils";
-import { TCreateOrder, TUpdateOrderStatus } from "./order.validation";
+} from "./productOrder.utils";
+import {
+  TCreateProductOrder,
+  TUpdateProductOrderStatus,
+} from "./productOrder.validation";
 
-const create = async (payload: TCreateOrder, auth: TAuthUser) => {
+const create = async (payload: TCreateProductOrder, auth: TAuthUser) => {
   const cart = await prisma.cart.findUnique({
     where: { authId: auth.id },
     include: {
@@ -90,7 +93,7 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
         )
       : null;
 
-  const newOrder = await prisma.$transaction(async tx => {
+  await prisma.$transaction(async tx => {
     for (const item of vendorCartItems) {
       const latestProduct = await tx.product.findUnique({
         where: { id: item.productId },
@@ -133,19 +136,21 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
       })),
     });
 
-    for (const item of vendorCartItems) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { quantity: { decrement: item.quantity } },
+    if (total === 0) {
+      for (const item of vendorCartItems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { quantity: { decrement: item.quantity } },
+        });
+      }
+
+      await tx.cartItem.deleteMany({
+        where: {
+          cartId: cart.id,
+          product: { vendorId: payload.vendorId },
+        },
       });
     }
-
-    await tx.cartItem.deleteMany({
-      where: {
-        cartId: cart.id,
-        product: { vendorId: payload.vendorId },
-      },
-    });
 
     if (total > 0) {
       await tx.payment.create({
@@ -164,25 +169,10 @@ const create = async (payload: TCreateOrder, auth: TAuthUser) => {
         },
       });
     }
-
-    return tx.order.findUniqueOrThrow({
-      where: { id: order.id },
-      include: { orderItems: true },
-    });
   });
 
-  if (total === 0) {
-    return {
-      type: "free" as const,
-      order: newOrder,
-      message: "Order placed successfully!",
-    };
-  }
-
   return {
-    type: "payment" as const,
-    order: newOrder,
-    checkoutUrl: session?.url,
+    checkoutUrl: total > 0 ? (session?.url ?? null) : null,
   };
 };
 
@@ -289,19 +279,55 @@ const paymentCallback = async (query: Record<string, any>) => {
 
     const targetOrder = await tx.order.findUnique({
       where: { id: targetOrderId },
-      select: { id: true, paymentStatus: true },
+      include: { orderItems: true },
     });
     if (!targetOrder) throw new ApiError(404, "Order not found");
 
-    if (targetOrder.paymentStatus !== OrderPaymentStatus.PAID) {
-      await tx.order.update({
-        where: { id: targetOrderId },
-        data: {
-          paymentStatus: OrderPaymentStatus.PAID,
-          paymentMethod: "STRIPE",
+    if (targetOrder.paymentStatus === OrderPaymentStatus.PAID) {
+      return;
+    }
+
+    for (const item of targetOrder.orderItems) {
+      const latestProduct = await tx.product.findUnique({
+        where: { id: item.productId },
+        select: { quantity: true },
+      });
+      if (!latestProduct || latestProduct.quantity < item.quantity) {
+        throw new ApiError(
+          409,
+          "Insufficient stock to finalize this paid order"
+        );
+      }
+    }
+
+    for (const item of targetOrder.orderItems) {
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { quantity: { decrement: item.quantity } },
+      });
+    }
+
+    const userCart = await tx.cart.findUnique({
+      where: { authId: targetOrder.authId },
+      select: { id: true },
+    });
+
+    if (userCart) {
+      await tx.cartItem.deleteMany({
+        where: {
+          cartId: userCart.id,
+          productId: { in: targetOrder.orderItems.map(item => item.productId) },
         },
       });
     }
+
+    await tx.order.update({
+      where: { id: targetOrderId },
+      data: {
+        paymentStatus: OrderPaymentStatus.PAID,
+        paymentMethod: "STRIPE",
+      },
+    });
   });
 };
 
@@ -381,13 +407,9 @@ const getAll = async (
     orderBy: sortBy && orderBy ? { [sortBy]: orderBy } : { date: "desc" },
     include: {
       orderItems: {
-        take: auth.role === UserRole.VENDOR ? undefined : 1,
+        take: 1,
         where:
           auth.role === UserRole.VENDOR ? { vendorId: auth.id } : undefined,
-      },
-      payments: {
-        orderBy: { paidAt: "desc" },
-        take: 1,
       },
     },
   });
@@ -397,17 +419,19 @@ const getAll = async (
   });
 
   const sanitizedOrders = orders.map(order => ({
-    id: order.id,
     orderId: order.orderId,
     status: mapOrderStatusForUi(order.status),
-    paymentStatus: order.paymentStatus,
-    subtotal: order.subtotal,
-    shippingFee: order.shippingFee,
-    total: order.total,
-    date: order.date,
-    itemCount: order.orderItems.length,
-    previewItem: order.orderItems[0] ?? null,
-    latestPayment: order.payments[0] ?? null,
+    placedAt: order.date,
+    item:
+      order.orderItems[0] === undefined
+        ? null
+        : {
+            image: order.orderItems[0].productImage,
+            title: order.orderItems[0].productTitle,
+            quantity: order.orderItems[0].quantity,
+            size: order.orderItems[0].size,
+            price: order.orderItems[0].price,
+          },
   }));
 
   return {
@@ -435,7 +459,7 @@ const getDetails = async (id: string, auth: TAuthUser) => {
 const updateStatus = async (
   id: string,
   auth: TAuthUser,
-  payload: TUpdateOrderStatus
+  payload: TUpdateProductOrderStatus
 ) => {
   const order = await ensureOrderAccess(id, auth);
 
@@ -468,7 +492,7 @@ const updateStatus = async (
   });
 };
 
-export const OrderService = {
+export const ProductOrderService = {
   create,
   createPaymentSession,
   paymentCallback,

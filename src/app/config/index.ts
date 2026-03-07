@@ -30,8 +30,11 @@ export default {
   },
   payment: {
     secret_key: process.env.STRIPE_SECRET_KEY,
-    callback_endpoint: process.env.PAYMENT_CALLBACK_ENDPOINT,
+    event_payment_callback_endpoint:
+      process.env.EVENT_PAYMENT_CALLBACK_ENDPOINT,
     class_enrollment_callback_endpoint:
       process.env.CLASS_ENROLLMENT_CALLBACK_ENDPOINT,
+    product_payment_callback_endpoint:
+      process.env.PRODUCT_PAYMENT_CALLBACK_ENDPOINT,
   },
 };

@@ -16,7 +16,7 @@ import { djEventRoutes } from "../modules/djEvent/djEvent.routes";
 import { classEnrollmentRoutes } from "../modules/classEnrollment/classEnrollment.routes";
 import { teacherRoutes } from "../modules/teacher/teacher.routes";
 import { cartRoutes } from "../modules/cart/cart.routes";
-import { orderRoutes } from "../modules/order/order.routes";
+import { productOrderRoutes } from "../modules/productOrder/productOrder.routes";
 
 const router = Router();
 
@@ -37,7 +37,7 @@ const routes = [
   { path: "/class-enrollments", route: classEnrollmentRoutes },
   { path: "/teachers", route: teacherRoutes },
   { path: "/cart", route: cartRoutes },
-  { path: "/orders", route: orderRoutes },
+  { path: "/product-orders", route: productOrderRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 
