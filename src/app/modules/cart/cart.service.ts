@@ -25,6 +25,7 @@ const addItem = async (authId: string, payload: TAddToCart) => {
       discount: true,
       shippingCost: true,
       quantity: true,
+      sizes: true,
       colors: true,
     },
   });

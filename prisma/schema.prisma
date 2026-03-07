@@ -298,27 +298,42 @@ model Order {
   user          Auth               @relation(fields: [authId], references: [id])
   authId        String
   orderId       String             @unique
+  customerName  String?
+  customerPhone String?
+  addressLine1  String?
+  addressLine2  String?
+  city          String?
+  state         String?
+  postalCode    String?
+  country       String?
+  paymentMethod String?
   paymentStatus OrderPaymentStatus
   status        OrderStatus
   subtotal      Int
   shippingFee   Int
   total         Int
   date          DateTime           @default(now())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @default(now()) @updatedAt
   orderItems    OrderItem[]
+  payments      Payment[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  order     Order   @relation(fields: [orderId], references: [id])
-  orderId   String
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
-  quantity  Int
-  price     Int
-  size      String?
-  color     String?
+  id           String  @id @default(uuid())
+  order        Order   @relation(fields: [orderId], references: [id])
+  orderId      String
+  product      Product @relation(fields: [productId], references: [id])
+  productId    String
+  vendorId     String?
+  productTitle String?
+  productImage String?
+  quantity     Int
+  price        Int
+  size         String?
+  color        String?
 
   @@map("order_item")
 }
@@ -484,7 +499,8 @@ model Staff {
 model Payment {
   id                    String         @id @default(uuid())
   payerId               String
-  receiverId            String
+  receiverId            String?
+  orderId               String?
   amount                Int
   transactionId         String         @unique
   purpose               PaymentPurpose
@@ -495,7 +511,8 @@ model Payment {
   paidAt                DateTime       @default(now())
 
   payer           Auth             @relation("payerPayments", fields: [payerId], references: [id])
-  receiver        Auth             @relation("receiverPayments", fields: [receiverId], references: [id])
+  receiver        Auth?            @relation("receiverPayments", fields: [receiverId], references: [id])
+  order           Order?           @relation(fields: [orderId], references: [id])
   classEnrollment ClassEnrollment?
 
   @@map("payment")
@@ -532,13 +549,17 @@ enum CommunityMemberRole {
 }
 
 enum OrderPaymentStatus {
+  PENDING
   PAID
   UNPAID
+  FAILED
+  REFUNDED
 }
 
 enum OrderStatus {
   PROCESSING
   READY_TO_SHIP
+  SHIPPED
   DELIVERED
 }
 
