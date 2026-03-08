@@ -30,7 +30,7 @@ const create = async (authId: string, payload: TCreateComment) => {
     if (!parent) throw new ApiError(404, "Parent comment not found");
   }
 
-  return prisma.comment.create({
+  const createdComment = await prisma.comment.create({
     data: {
       reactorId: authId,
       postId: payload.postId,
@@ -44,8 +44,20 @@ const create = async (authId: string, payload: TCreateComment) => {
       parentCommentId: true,
       content: true,
       date: true,
+      updatedAt: true,
     },
   });
+
+  return {
+    id: createdComment.id,
+    reactorId: createdComment.reactorId,
+    postId: createdComment.postId,
+    parentCommentId: createdComment.parentCommentId,
+    content: createdComment.content,
+    date: createdComment.date,
+    isEdited:
+      createdComment.updatedAt.getTime() > createdComment.date.getTime(),
+  };
 };
 
 const getAll = async (

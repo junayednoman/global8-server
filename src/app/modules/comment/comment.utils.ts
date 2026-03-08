@@ -6,6 +6,7 @@ export const commentSelect = {
   parentCommentId: true,
   content: true,
   date: true,
+  updatedAt: true,
   reactor: {
     select: {
       id: true,
@@ -51,6 +52,7 @@ export const mapComment = (
   content: comment.content,
   date: comment.date,
   postedAgo: toRelativeTime(comment.date),
+  isEdited: comment.updatedAt.getTime() > comment.date.getTime(),
   author: {
     id: comment.reactor.id,
     name: comment.reactor.profile?.name ?? null,

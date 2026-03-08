@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "public"."comment" ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
