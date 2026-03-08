@@ -39,6 +39,7 @@ model Auth {
   communityMembers      CommunityMember[]
   communityJoinRequests CommunityJoinRequest[]
   messages              Message[]
+  chatParticipants      ChatParticipant[]
   notifications         Notification[]
   staffs                Staff[]
   followers             Follow[]               @relation("FollowerRelation")
@@ -458,25 +459,48 @@ model Chat {
   type        ChatType
   community   Community? @relation(fields: [communityId], references: [id])
   communityId String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   messages    Message[]
+  participants ChatParticipant[]
 
+  @@unique([communityId])
+  @@index([type])
   @@map("chat")
 }
 
 model Message {
-  id        String    @id @default(uuid())
-  chat      Chat      @relation(fields: [chatId], references: [id])
+  id        String        @id @default(uuid())
+  chat      Chat          @relation(fields: [chatId], references: [id])
   chatId    String
-  sender    Auth      @relation(fields: [senderId], references: [id])
+  sender    Auth          @relation(fields: [senderId], references: [id])
   senderId  String
   text      String?
   file      String?
   fileType  FileType?
-  seenBy    String[]  @default([])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  status    MessageStatus @default(SENT)
+  seenBy    String[]      @default([])
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
+  @@index([chatId, createdAt])
+  @@index([senderId])
   @@map("message")
+}
+
+model ChatParticipant {
+  id         String   @id @default(uuid())
+  chat       Chat     @relation(fields: [chatId], references: [id])
+  chatId     String
+  auth       Auth     @relation(fields: [authId], references: [id])
+  authId     String
+  joinedAt   DateTime @default(now())
+  lastReadAt DateTime?
+
+  @@unique([chatId, authId])
+  @@index([authId])
+  @@index([chatId])
+  @@map("chat_participant")
 }
 
 model Notification {
@@ -555,6 +579,12 @@ enum FileType {
 enum ChatType {
   COMMUNITY
   INDIVIDUAL
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
 }
 
 enum CommunityMemberRole {
