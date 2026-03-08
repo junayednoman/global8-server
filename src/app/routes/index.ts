@@ -19,6 +19,7 @@ import { cartRoutes } from "../modules/cart/cart.routes";
 import { productOrderRoutes } from "../modules/productOrder/productOrder.routes";
 import { feedbackRoutes } from "../modules/feedback/feedback.routes";
 import { postRoutes } from "../modules/post/post.routes";
+import { reactionRoutes } from "../modules/reaction/reaction.routes";
 
 const router = Router();
 
@@ -42,6 +43,7 @@ const routes = [
   { path: "/product-orders", route: productOrderRoutes },
   { path: "/feedback", route: feedbackRoutes },
   { path: "/posts", route: postRoutes },
+  { path: "/reactions", route: reactionRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 
