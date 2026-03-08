@@ -86,3 +86,43 @@ export const cleanupUploadedPostMedia = async (urls: string[]) => {
     await deleteFromS3(url);
   }
 };
+
+type TPostWithCounts = Prisma.PostGetPayload<{
+  select: typeof postSelect;
+}>;
+
+const toRelativeTime = (date: Date) => {
+  const diffMs = Date.now() - new Date(date).getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+  if (diffMinutes < 1) return "just now";
+  if (diffMinutes < 60) return `${diffMinutes} min ago`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+};
+
+export const mapFeedPost = (post: TPostWithCounts) => {
+  return {
+    id: post.id,
+    caption: post.caption,
+    images: post.images,
+    videos: post.videos,
+    createdAt: post.createdAt,
+    postedAgo: toRelativeTime(post.createdAt),
+    creator: {
+      id: post.creator.id,
+      name: post.creator.profile?.name ?? null,
+      image: post.creator.profile?.image ?? null,
+      role: post.creator.role,
+    },
+    stats: {
+      shareCount: post.shares,
+      commentCount: post._count.comments,
+      reactionCount: post._count.reactions,
+    },
+  };
+};

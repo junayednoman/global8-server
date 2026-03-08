@@ -9,6 +9,7 @@ import { TPostFiles } from "./post.interface";
 import {
   cleanupUploadedPostMedia,
   getPostOrderBy,
+  mapFeedPost,
   postSelect,
   uploadPostMediaFiles,
   validatePostMediaFiles,
@@ -109,7 +110,7 @@ const getFeed = async (
 
   return {
     meta: { page: currentPage, limit: take, total },
-    posts,
+    posts: posts.map(mapFeedPost),
   };
 };
 
