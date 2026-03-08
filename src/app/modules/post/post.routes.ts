@@ -23,7 +23,7 @@ router.post(
   validate(createPostSchema, { formData: true }),
   PostController.create
 );
-router.get("/feed", PostController.getFeed);
+router.get("/feed", authorize({ optional: true }), PostController.getFeed);
 router.get("/my", authorize(), PostController.getMy);
 router.patch(
   "/:id",

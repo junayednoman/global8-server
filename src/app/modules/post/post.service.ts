@@ -56,6 +56,7 @@ const create = async (
 };
 
 const getFeed = async (
+  authId: string | undefined,
   options: TPaginationOptions,
   query: Record<string, unknown>
 ) => {
@@ -108,9 +109,25 @@ const getFeed = async (
     where: whereConditions,
   });
 
+  const reactedPostIds = new Set<string>();
+  if (authId && posts.length) {
+    const reactions = await prisma.reaction.findMany({
+      where: {
+        reactorId: authId,
+        postId: { in: posts.map(post => post.id) },
+        commentId: null,
+      },
+      select: { postId: true },
+    });
+
+    reactions.forEach(reaction => {
+      if (reaction.postId) reactedPostIds.add(reaction.postId);
+    });
+  }
+
   return {
     meta: { page: currentPage, limit: take, total },
-    posts: posts.map(mapFeedPost),
+    posts: posts.map(post => mapFeedPost(post, reactedPostIds.has(post.id))),
   };
 };
 

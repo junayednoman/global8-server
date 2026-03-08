@@ -105,7 +105,7 @@ const toRelativeTime = (date: Date) => {
   return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
 };
 
-export const mapFeedPost = (post: TPostWithCounts) => {
+export const mapFeedPost = (post: TPostWithCounts, isReacted: boolean) => {
   return {
     id: post.id,
     caption: post.caption,
@@ -119,6 +119,7 @@ export const mapFeedPost = (post: TPostWithCounts) => {
       image: post.creator.profile?.image ?? null,
       role: post.creator.role,
     },
+    isReacted,
     stats: {
       shareCount: post.shares,
       commentCount: post._count.comments,

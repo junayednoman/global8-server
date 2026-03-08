@@ -24,7 +24,7 @@ const create = handleAsyncRequest(async (req: TRequest, res) => {
 const getFeed = handleAsyncRequest(async (req: TRequest, res) => {
   const options = pick(req.query, ["page", "limit", "sortBy", "orderBy"]);
   const query = pick(req.query, ["searchTerm", "creatorId"]);
-  const result = await PostService.getFeed(options, query);
+  const result = await PostService.getFeed(req.user?.id, options, query);
 
   sendResponse(res, {
     message: "Posts retrieved successfully!",
