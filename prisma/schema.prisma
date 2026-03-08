@@ -376,8 +376,8 @@ model Comment {
   id              String     @id @default(uuid())
   reactor         Auth       @relation(fields: [reactorId], references: [id])
   reactorId       String
-  post            Post       @relation(fields: [postId], references: [id])
-  postId          String
+  post            Post?      @relation(fields: [postId], references: [id])
+  postId          String?
   content         String
   parentComment   Comment?   @relation("CommentReplies", fields: [parentCommentId], references: [id])
   parentCommentId String?
@@ -392,14 +392,14 @@ model Comment {
 }
 
 model Reaction {
-  id        String    @id @default(uuid())
-  reactor   Auth      @relation(fields: [reactorId], references: [id])
+  id        String   @id @default(uuid())
+  reactor   Auth     @relation(fields: [reactorId], references: [id])
   reactorId String
-  post      Post?     @relation(fields: [postId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
   postId    String?
-  comment   Comment?  @relation(fields: [commentId], references: [id])
+  comment   Comment? @relation(fields: [commentId], references: [id])
   commentId String?
-  date      DateTime  @default(now())
+  date      DateTime @default(now())
 
   @@unique([reactorId, postId])
   @@unique([reactorId, commentId])
