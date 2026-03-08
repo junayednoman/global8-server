@@ -21,6 +21,7 @@ import { feedbackRoutes } from "../modules/feedback/feedback.routes";
 import { postRoutes } from "../modules/post/post.routes";
 import { reactionRoutes } from "../modules/reaction/reaction.routes";
 import { commentRoutes } from "../modules/comment/comment.routes";
+import { communityRoutes } from "../modules/community/community.routes";
 
 const router = Router();
 
@@ -46,6 +47,7 @@ const routes = [
   { path: "/posts", route: postRoutes },
   { path: "/reactions", route: reactionRoutes },
   { path: "/comments", route: commentRoutes },
+  { path: "/communities", route: communityRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 

@@ -418,6 +418,7 @@ model Community {
   title                 String
   subTitle              String?
   createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
   communityMembers      CommunityMember[]
   communityJoinRequests CommunityJoinRequest[]
   chats                 Chat[]
@@ -434,6 +435,7 @@ model CommunityMember {
   role         CommunityMemberRole
   joinedAt     DateTime            @default(now())
 
+  @@unique([communityId, memberAuthId])
   @@map("community_member")
 }
 
@@ -443,8 +445,10 @@ model CommunityJoinRequest {
   communityId  String
   member       Auth      @relation(fields: [memberAuthId], references: [id])
   memberAuthId String
+  status       CommunityJoinRequestStatus @default(PENDING)
   date         DateTime  @default(now())
 
+  @@unique([communityId, memberAuthId])
   @@map("community_join_request")
 }
 
@@ -556,6 +560,12 @@ enum ChatType {
 enum CommunityMemberRole {
   ADMIN
   MEMBER
+}
+
+enum CommunityJoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum OrderPaymentStatus {
