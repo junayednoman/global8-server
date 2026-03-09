@@ -26,7 +26,6 @@ export default {
     s3_api: process.env.S3_API,
     region: process.env.AWS_REGION,
     bucket: process.env.AWS_BUCKET_NAME,
-    endpoint: process.env.SPACES_API,
   },
   payment: {
     secret_key: process.env.STRIPE_SECRET_KEY,
