@@ -441,27 +441,27 @@ model CommunityMember {
 }
 
 model CommunityJoinRequest {
-  id           String    @id @default(uuid())
-  community    Community @relation(fields: [communityId], references: [id])
+  id           String                     @id @default(uuid())
+  community    Community                  @relation(fields: [communityId], references: [id])
   communityId  String
-  member       Auth      @relation(fields: [memberAuthId], references: [id])
+  member       Auth                       @relation(fields: [memberAuthId], references: [id])
   memberAuthId String
   status       CommunityJoinRequestStatus @default(PENDING)
-  date         DateTime  @default(now())
+  date         DateTime                   @default(now())
 
   @@unique([communityId, memberAuthId])
   @@map("community_join_request")
 }
 
 model Chat {
-  id          String     @id @default(uuid())
-  lastMessage String?
-  type        ChatType
-  community   Community? @relation(fields: [communityId], references: [id])
-  communityId String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  messages    Message[]
+  id           String            @id @default(uuid())
+  lastMessage  String?
+  type         ChatType
+  community    Community?        @relation(fields: [communityId], references: [id])
+  communityId  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  messages     Message[]
   participants ChatParticipant[]
 
   @@unique([communityId])
@@ -489,12 +489,12 @@ model Message {
 }
 
 model ChatParticipant {
-  id         String   @id @default(uuid())
-  chat       Chat     @relation(fields: [chatId], references: [id])
+  id         String    @id @default(uuid())
+  chat       Chat      @relation(fields: [chatId], references: [id])
   chatId     String
-  auth       Auth     @relation(fields: [authId], references: [id])
+  auth       Auth      @relation(fields: [authId], references: [id])
   authId     String
-  joinedAt   DateTime @default(now())
+  joinedAt   DateTime  @default(now())
   lastReadAt DateTime?
 
   @@unique([chatId, authId])

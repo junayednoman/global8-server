@@ -49,6 +49,19 @@ const create = async (
         },
       });
 
+      await tx.chat.create({
+        data: {
+          type: "COMMUNITY",
+          communityId: created.id,
+          participants: {
+            createMany: {
+              data: [{ authId }],
+            },
+          },
+        },
+        select: { id: true },
+      });
+
       return created;
     });
 
