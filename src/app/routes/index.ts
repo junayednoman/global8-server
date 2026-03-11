@@ -25,6 +25,7 @@ import { communityRoutes } from "../modules/community/community.routes";
 import { chatRoutes } from "../modules/chat/chat.routes";
 import { notificationRoutes } from "../modules/notification/notification.routes";
 import { legalRoutes } from "../modules/legal/legal.routes";
+import { staffRoutes } from "../modules/staff/staff.routes";
 
 const router = Router();
 
@@ -54,6 +55,7 @@ const routes = [
   { path: "/chats", route: chatRoutes },
   { path: "/notifications", route: notificationRoutes },
   { path: "/legal", route: legalRoutes },
+  { path: "/staff", route: staffRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 
