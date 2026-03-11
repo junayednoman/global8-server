@@ -201,15 +201,15 @@ const getAll = async (
         lastMessage?.text ??
         (lastMessage?.fileType ? lastMessage.fileType.toLowerCase() : null);
       const isMine = lastMessage?.senderId === authId;
-      const hasBeenSeen = lastMessage ? lastMessage.seenBy.length > 0 : false;
+      const isSeenByMe = lastMessage
+        ? lastMessage.seenBy.includes(authId)
+        : false;
       const readStatus = lastMessage
         ? isMine
-          ? hasBeenSeen
+          ? lastMessage.status
+          : isSeenByMe
             ? "READ"
-            : "SENT"
-          : lastMessage.seenBy.includes(authId)
-            ? "READ"
-            : "DELIVERED"
+            : lastMessage.status
         : null;
 
       return {
