@@ -23,6 +23,7 @@ import { reactionRoutes } from "../modules/reaction/reaction.routes";
 import { commentRoutes } from "../modules/comment/comment.routes";
 import { communityRoutes } from "../modules/community/community.routes";
 import { chatRoutes } from "../modules/chat/chat.routes";
+import { notificationRoutes } from "../modules/notification/notification.routes";
 
 const router = Router();
 
@@ -50,6 +51,7 @@ const routes = [
   { path: "/comments", route: commentRoutes },
   { path: "/communities", route: communityRoutes },
   { path: "/chats", route: chatRoutes },
+  { path: "/notifications", route: notificationRoutes },
   { path: "/upload-files", route: fileRoutes },
 ];
 

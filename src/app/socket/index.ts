@@ -36,11 +36,14 @@ export const initSocket = (server: HttpServer) => {
       data: { authId: authId ?? null },
     });
 
-    socket.on("presence:sync", (ack?: (data: { userIds: string[] }) => void) => {
-      const userIds = Array.from(onlineUsers.keys());
-      if (typeof ack === "function") return ack({ userIds });
-      socket.emit("presence:sync", { userIds });
-    });
+    socket.on(
+      "presence:sync",
+      (ack?: (data: { userIds: string[] }) => void) => {
+        const userIds = Array.from(onlineUsers.keys());
+        if (typeof ack === "function") return ack({ userIds });
+        socket.emit("presence:sync", { userIds });
+      }
+    );
 
     registerChatEvents(io, socket);
 
